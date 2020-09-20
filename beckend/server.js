@@ -13,8 +13,10 @@ const port = 4001;
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
   // res.end('Hello, who are you? You send plain gat request')
-  const rootHtmlPath = path.join(__dirname, '../frontend/index.html');
-  const rootCssPath = path.join(__dirname, '../frontend/index.css');
+  const rootHtmlPath = path.join(__dirname, '../frontend/Home-page/index.html');
+  const rootCssPath = path.join(__dirname, '../frontend/Home-page/index.css');
+  const rootJSPath = path.join(__dirname, '../frontend/Home-page/index.js');
+
   switch (req.url) {
     case '/' : {
       const fileHtml = new fs.ReadStream(rootHtmlPath)
@@ -26,7 +28,13 @@ const server = http.createServer((req, res) => {
       const fileCSS = new fs.ReadStream(rootCssPath)
       res.setHeader('Content-Type', 'text/css')
       sendFile(fileCSS, res);
-      // break;
+      break;
+    }
+    case '/index.js' : {
+      const fileJS = new fs.ReadStream(rootJSPath)
+      res.setHeader('Content-Type', 'application/javascript')
+      sendFile(fileJS, res);
+      break;
     }
   }
 
