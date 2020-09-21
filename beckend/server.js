@@ -5,6 +5,7 @@ const fs = require('fs')
 const path = require('path');
 
 const getRequestRouter = require('./Request-handlers/get-request-handlers')
+const postRequestRouter = require('./Request-handlers/post-request-handlers')
 
 // server creating
 const http = require('http');
@@ -79,12 +80,13 @@ server.on('request', (req, res) => {
   const { method, url } = req;
   switch (method) {
     case 'GET': {
-        getRequestRouter(req, res, dataBase);
-        break;
+      getRequestRouter(req, res, dataBase);
+      break;
     }
-    // case '/POST': {
-    //   requestHandler.getUsers(req, res);
-    // }
+    case 'POST': {
+      postRequestRouter(req, res, dataBase);
+      break;
+    }
     default: {
       defaultHandler(req, res);
     }
