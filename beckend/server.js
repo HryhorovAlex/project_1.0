@@ -1,11 +1,13 @@
-const dataBase = require('./data-base');
-const urlParser = require('url')
+// /*global __dirname*/
+const dbConnection = require('./data-base/db-connect');
+// const urlParser = require('url')
 const defaultHandler = require('./Request-handlers/default-handler');
 const fs = require('fs')
 const path = require('path');
+// const User = require('./models/user-model');
 
-const getRequestRouter = require('./Request-handlers/get-request-handlers')
-const postRequestRouter = require('./Request-handlers/post-request-handlers')
+// const getRequestRouter = require('./Request-handlers/get-request-handlers')
+// const postRequestRouter = require('./Request-handlers/post-request-handlers')
 
 // server creating
 const http = require('http');
@@ -45,20 +47,20 @@ const server = http.createServer((req, res) => {
       sendFile(fileHtml, res);
       break;
     }
-    case '/index.css' : {
-      const todoCssPath = path.join(__dirname, '../frontend/Todo-page/index.css');
-      const fileCSS = new fs.ReadStream(todoCssPath)
-      res.setHeader('Content-Type', 'text/css')
-      sendFile(fileCSS, res);
-      break;
-    }
-    case '/index.js' : {
-      const todoJSPath = path.join(__dirname, '../frontend/Todo-page/index.js');
-      const fileJS = new fs.ReadStream(todoJSPath)
-      res.setHeader('Content-Type', 'application/javascript')
-      sendFile(fileJS, res);
-      break;
-    }
+    // case '/index.css' : {
+    //   const todoCssPath = path.join(__dirname, '../frontend/Todo-page/index.css');
+    //   const fileCSS = new fs.ReadStream(todoCssPath)
+    //   res.setHeader('Content-Type', 'text/css')
+    //   sendFile(fileCSS, res);
+    //   break;
+    // }
+    // case '/index.js' : {
+    //   const todoJSPath = path.join(__dirname, '../frontend/Todo-page/index.js');
+    //   const fileJS = new fs.ReadStream(todoJSPath)
+    //   res.setHeader('Content-Type', 'application/javascript')
+    //   sendFile(fileJS, res);
+    //   break;
+    // }
   }
 
   function sendFile(file, res) {
@@ -77,16 +79,16 @@ const server = http.createServer((req, res) => {
 
 // handle request
 server.on('request', (req, res) => {
-  const { method, url } = req;
+  const { method } = req;
   switch (method) {
-    case 'GET': {
-      getRequestRouter(req, res, dataBase);
-      break;
-    }
-    case 'POST': {
-      postRequestRouter(req, res, dataBase);
-      break;
-    }
+    // case 'GET': {
+    //   getRequestRouter(req, res, dataBase);
+    //   break;
+    // }
+    // case 'POST': {
+    //   postRequestRouter(req, res, dataBase);
+    //   break;
+    // }
     default: {
       defaultHandler(req, res);
     }
@@ -95,6 +97,7 @@ server.on('request', (req, res) => {
 
 server.listen(port, postName, () => {
   console.log(`server running at http://${postName}:${port}`)
+  dbConnection.connect();
 })
 
-exports.module = postName;
+module.exports = postName;
