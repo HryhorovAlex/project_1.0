@@ -1,98 +1,64 @@
 const urlParser = require('url');
 const defaultHandler = require('./default-handler');
-const fs = require('fs')
-const path = require('path');
+const User = require('../models/user-model');
 
 class CreateGetRequestHandlers {
-
-  constructor(dataBase) {
-    this.db = dataBase;
-  }
-
-  get = (req, res) => {
-    res.statusCode = 200;
-    // res.end('Hello, who are you? You send plain gat request')
-    const rootHtmlPath = path.join(__dirname, '../../frontend/index.html');
-    const rootCssPath = path.join(__dirname, '../../frontend/index.css');
-    
-    console.log(req.url, '=======')
-    switch (req.url) {
-      case '/' : {
-        const fileHtml = new fs.ReadStream(rootHtmlPath)
-        res.setHeader('Content-Type', 'text/html')
-        sendFile(fileHtml, res);
-        break;
-      }
-      case '/index.css' : {
-        const fileCSS = new fs.ReadStream(rootCssPath)
-        res.setHeader('Content-Type', 'text/css')
-        sendFile(fileCSS, res);
-        // break;
-      }
-    }
-
-    function sendFile(file, res) {
-      file.pipe(res)
-
-      file.on('error', (err) => {
-        res.statusCode = 500;
-        res.end('Server error');
-        console.log('[Send File Error]: ', err)
-      })
-      res.on('close', () => {
-        file.destroy()
-      })
-    }
-  }
-
-  getUsers = (req, res) => {
+  getUsers = async(req, res) => {
+    res.setHeader('Content-Type', 'application/json')
     const { method, url } = req;
-    // Checks
     const isUrl = url === '/users';
     const isGet = 'GET' === method;
-    const isPresentInDb = this.db.has('users')
+    const users = await User.findAll()
     try {
-      if (isGet && isUrl && isPresentInDb) {
+      if (isGet && isUrl && users.length) {
         res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json')
-        res.write(JSON.stringify({
-          users :Object.values(this.db.get('users'))
-        }))
+        res.write(JSON.stringify(users))
         res.end()
+      } else {
+          res.statusCode = 200;
+          res.write(JSON.stringify({answer: `There no users yet`}))
+          res.end()
       }
     } catch (e) {
-      res.statusCode = 404;
-      res.write('some error')
+      res.statusCode = 500;
+      console.log('[Get Users Error] : ', e)
+      res.write(JSON.stringify({answer: `server error`}))
       res.end()
     }
   }
 
-  getUserById = (req, res, id) => {
-    const isUserPresent = this.db.get('users').find(user => user.id == id);
+  getUserById = async (req, res, id) => {
     res.setHeader('Content-Type', 'application/json');
-    if (isUserPresent) {
-      res.statusCode = 200;
-      res.write(JSON.stringify(isUserPresent))
-      res.end()
-    } else {
-      res.statusCode = 200;
-      res.write(JSON.stringify({error: `There is no user with id: ${id}`}))
+    try {
+      const user = await User.findAll({
+        where: {
+          id: id
+        }
+      })
+      if (user.length) {
+        res.statusCode = 200;
+        res.write(JSON.stringify(user))
+        res.end()
+      } else {
+        res.statusCode = 200;
+        res.write(JSON.stringify({answer: `There is no user with id [${id}]`}))
+        res.end()
+      }
+    } catch (err) {
+      res.statusCode = 500;
+      res.write(JSON.stringify({error: `unexpected server error in getting user`}))
       res.end()
     }
   }
 }
 
-const getRequestRouter = (request, response, database) => {
-  const getHandlers = new CreateGetRequestHandlers(database)
+const getRequestRouter = (request, response) => {
+  const getHandlers = new CreateGetRequestHandlers()
   const { url } = request;
 
   const parsedUrl = urlParser.parse(url, true)
   if (!Object.keys(parsedUrl.query).length) {
     switch (parsedUrl.pathname) {
-      // case '/' : {
-      //   getHandlers.get(request, response);
-      //   break;
-      // }
       case '/users' : {
         getHandlers.getUsers(request, response);
         break;
