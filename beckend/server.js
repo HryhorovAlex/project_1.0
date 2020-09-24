@@ -9,6 +9,7 @@ const path = require('path');
 const getRequestRouter = require('./Request-handlers/get-request-handlers')
 const postRequestRouter = require('./Request-handlers/post-request-handlers')
 const putRequestRouter = require('./Request-handlers/put-request-handlers')
+const deleteRequestRouter = require('./Request-handlers/delete-request-handlers')
 
 // server creating
 const http = require('http');
@@ -42,26 +43,26 @@ const server = http.createServer((req, res) => {
       break;
     }
     case '/todo' : {
-      const todoHtmlPath = path.join(__dirname, '../frontend/Todo-page/index.html');
+      const todoHtmlPath = path.join(__dirname, '../frontend/Todo-page/todo.html');
       const fileHtml = new fs.ReadStream(todoHtmlPath)
       res.setHeader('Content-Type', 'text/html')
       sendFile(fileHtml, res);
       break;
     }
-    // case '/index.css' : {
-    //   const todoCssPath = path.join(__dirname, '../frontend/Todo-page/index.css');
-    //   const fileCSS = new fs.ReadStream(todoCssPath)
-    //   res.setHeader('Content-Type', 'text/css')
-    //   sendFile(fileCSS, res);
-    //   break;
-    // }
-    // case '/index.js' : {
-    //   const todoJSPath = path.join(__dirname, '../frontend/Todo-page/index.js');
-    //   const fileJS = new fs.ReadStream(todoJSPath)
-    //   res.setHeader('Content-Type', 'application/javascript')
-    //   sendFile(fileJS, res);
-    //   break;
-    // }
+    case '/todo.css' : {
+      const todoCssPath = path.join(__dirname, '../frontend/Todo-page/todo.css');
+      const fileCSS = new fs.ReadStream(todoCssPath)
+      res.setHeader('Content-Type', 'text/css')
+      sendFile(fileCSS, res);
+      break;
+    }
+    case '/todo.js' : {
+      const todoJSPath = path.join(__dirname, '../frontend/Todo-page/todo.js');
+      const fileJS = new fs.ReadStream(todoJSPath)
+      res.setHeader('Content-Type', 'application/javascript')
+      sendFile(fileJS, res);
+      break;
+    }
   }
 
   function sendFile(file, res) {
@@ -91,7 +92,11 @@ server.on('request', (req, res) => {
       break;
     }
     case 'PUT' : {
-      putRequestRouter(req, res)
+      putRequestRouter(req, res);
+      break;
+    }
+    case 'DELETE' : {
+      deleteRequestRouter(req, res);
       break;
     }
     default: {

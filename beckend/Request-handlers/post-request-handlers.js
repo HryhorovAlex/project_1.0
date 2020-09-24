@@ -39,7 +39,7 @@ const postRequestRouter = (request, response) => {
   const { url } = request;
   const parsedUrl = urlParser.parse(url, true)
     switch (parsedUrl.pathname) {
-      case '/users-add' : {
+      case '/users' : {
         postHandlers.postNewUser(request, response);
         break;
       }
